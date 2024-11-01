@@ -1,19 +1,20 @@
 <!-- users/templates/users/home.html -->
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Flower Delivery - Home</title>
-</head>
-<body>
-    <h1>Welcome to Flower Delivery</h1>
-    <p>Your one-stop solution for ordering fresh flowers online!</p>
+{% extends 'catalog/layoute.html' %}
+
+{% block title %}
+    <title>Доставка цветов</title>
+{% endblock %}
+
+{% block content %}
+    <h1>Добро пожаловать в Службу доставки цветов</h1>
+    <p>Здесь Вы можете заказать свежие цветы!</p>
 
     <h2>Quick Links</h2>
     <ul>
-        <li><a href="{% url 'register' %}">Register</a> - Create an account to place orders</li>
-        <li><a href="{% url 'login' %}">Login</a> - Access your account</li>
+        <li><a href="{% url 'register' %}">Register</a> - Создайте учетную запись для размещения заказовs</li>
+        <li><a href="{% url 'login' %}">Login</a> - Получите доступ к своей учетной записи</li>
 
     </ul>
-</body>
-</html>
+{% endblock %}}
+
+

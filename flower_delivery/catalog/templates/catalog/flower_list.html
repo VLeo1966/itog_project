@@ -1,0 +1,24 @@
+<!-- catalog/templates/catalog/flower_list.html -->
+{% extends 'catalog/layoute.html' %}
+{% block title %}
+    <title>Каталог цветов</title>
+{% endblock %}
+
+{% block content %}
+    <h1>Наша Цветочная Коллекция</h1>
+    <div>
+        {% for flower in flowers %}
+            <div style="border: 1px solid #ccc; margin: 10px; padding: 10px;">
+                {% if flower.image %}
+                    <img src="{{ flower.image.url }}" alt="{{ flower.name }}" style="width: 150px; height: auto;">
+                {% endif %}
+                <h2>{{ flower.name }}</h2>
+                <p>{{ flower.description }}</p>
+                <p><strong>Price:</strong> ${{ flower.price }}</p>
+                <button>Add to Cart</button>
+            </div>
+        {% empty %}
+            <p>На данный момент в наличии нет цветов.</p>
+        {% endfor %}
+    </div>
+{% endblock %}}
