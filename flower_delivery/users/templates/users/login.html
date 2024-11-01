@@ -1,17 +1,17 @@
 <!-- users/templates/users/login.html -->
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Login</title>
-</head>
-<body>
-    <h2>Login</h2>
+{% extends 'catalog/layoute.html' %}
+{% block title %}
+    <title>Регистрация</title>
+{% endblock %}
+
+{% block content %}
+    <h2>Вход</h2>
     <form method="POST">
         {% csrf_token %}
         {{ form.as_p }}
-        <button type="submit">Login</button>
+        <button type="submit">Далее</button>
     </form>
-    <p>Don't have an account? <a href="{% url 'register' %}">Register here</a>.</p>
-</body>
-</html>
+    <br>
+    <p>Вы незарегистрированы, для заказа необходимо  <a href="{% url 'register' %}">зарегистрироваться</a>.</p>
+{% endblock %}}
+

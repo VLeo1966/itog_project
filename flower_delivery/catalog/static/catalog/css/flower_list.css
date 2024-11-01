@@ -1,0 +1,87 @@
+/* Основные стили */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f8f9fa; /* Светлый фон */
+    color: #333; /* Тёмный текст */
+}
+
+/* Стили боковой панели */
+aside {
+    border-right: 2px solid #dee2e6; /* Разделительная линия */
+    min-height: 100vh;
+}
+
+aside img {
+    margin-bottom: 15px;
+}
+
+aside h4 {
+    color: #5a5a5a;
+    font-weight: bold;
+}
+
+aside .nav-link {
+    font-size: 1.1em;
+    color: #007bff; /* Синий цвет ссылок */
+    padding: 10px;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+aside .nav-link:hover {
+    background-color: #e9ecef;
+    color: #0056b3;
+}
+
+/* Основная часть */
+main {
+    padding: 20px;
+    background-color: #ffffff;
+}
+
+.container {
+    max-width: 100%;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    color: #343a40;
+}
+
+/* Кнопки */
+button, .btn {
+    background-color: #007bff;
+    color: #ffffff;
+    border: none;
+    transition: background-color 0.3s;
+}
+
+button:hover, .btn:hover {
+    background-color: #0056b3;
+}
+
+/* Стили для изображений */
+img {
+    max-width: 100%;
+    height: auto;
+}
+
+/* Общие настройки для контейнера */
+.container {
+    margin: 0 auto;
+    padding: 15px;
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+    aside {
+        min-height: auto;
+        border-right: none;
+    }
+
+    aside h4 {
+        font-size: 1.5em;
+    }
+
+    aside .nav-link {
+        font-size: 1em;
+    }
+}

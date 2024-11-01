@@ -1,16 +1,17 @@
 <!-- users/templates/users/register.html -->
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Register</title>
-</head>
-<body>
+{% extends 'catalog/layoute.html' %}
+
+{% block title %}
+    <title>Регистрация</title>
+{% endblock %}
+
+{% block content %}
     <h2>Register</h2>
     <form method="POST">
         {% csrf_token %}
         {{ form.as_p }}
-        <button type="submit">Register</button>
+        <br>
+        <button type="submit">Зарегистрироваться</button>
     </form>
     {% if messages %}
         <ul>
@@ -19,5 +20,5 @@
             {% endfor %}
         </ul>
     {% endif %}
-</body>
-</html>
+{% endblock %}}
+
