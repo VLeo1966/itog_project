@@ -1,24 +1,49 @@
 <!-- catalog/templates/catalog/flower_list.html -->
-{% extends 'catalog/layoute.html' %}
+{% extends 'catalog/layout.html' %}
 {% block title %}
     <title>Каталог цветов</title>
 {% endblock %}
 
 {% block content %}
-    <h1>Наша Цветочная Коллекция</h1>
-    <div>
-        {% for flower in flowers %}
-            <div style="border: 1px solid #ccc; margin: 10px; padding: 10px;">
-                {% if flower.image %}
-                    <img src="{{ flower.image.url }}" alt="{{ flower.name }}" style="width: 150px; height: auto;">
-                {% endif %}
-                <h2>{{ flower.name }}</h2>
-                <p>{{ flower.description }}</p>
-                <p><strong>Price:</strong> {{ flower.price }} руб</p>
-                <button>Add to Cart</button>
+    <div class="row">
+        <!-- Список цветов -->
+        <div class="col-md-9">
+            <h1>Наша Цветочная Коллекция</h1>
+            <div>
+                {% for flower in flowers %}
+                    <div style="border: 1px solid #ccc; margin: 10px; padding: 10px;">
+                        {% if flower.image %}
+                            <img src="{{ flower.image.url }}" alt="{{ flower.name }}" style="width: 150px; height: auto;">
+                        {% endif %}
+                        <h2>{{ flower.name }}</h2>
+                        <p>{{ flower.description }}</p>
+                        <p><strong>Цена:</strong> {{ flower.price }} руб</p>
+                        <a href="{% url 'add_to_cart' flower.id %}" class="btn btn-primary">Добавить в корзину</a>
+                    </div>
+                {% empty %}
+                    <p>На данный момент в наличии нет цветов.</p>
+                {% endfor %}
             </div>
-        {% empty %}
-            <p>На данный момент в наличии нет цветов.</p>
-        {% endfor %}
+        </div>
+
+        <!-- Корзина -->
+        <aside class="col-md-3 bg-light p-4" style="position: fixed; right: 0; top: 10%;">
+            <h4>Корзина</h4>
+            {% if cart %}
+                <ul class="list-group">
+                    {% for item_id, item in cart.items %}
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            {{ item.name }} x {{ item.quantity }} шт
+                            <span>{{ item.price|floatformat:2|add:item.quantity|floatformat:2 }} руб.</span>
+                        </li>
+                    {% endfor %}
+                </ul>
+                <hr>
+                <p><strong>Итого: {{ total_price }} руб</strong></p>
+                <a href="{% url 'checkout' %}" class="btn btn-success mt-3">Перейти к оплате</a>
+            {% else %}
+                <p>Ваша корзина пуста</p>
+            {% endif %}
+        </aside>
     </div>
-{% endblock %}}
+{% endblock %}

@@ -11,5 +11,9 @@ urlpatterns = [
     path('', include('catalog.urls'))  # Каталог цветов
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
+# Добавляем маршрут для медиа-файлов
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
 
 
