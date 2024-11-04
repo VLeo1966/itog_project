@@ -3,6 +3,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from catalog.models import Flower
 
+
 class Order(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='orders', verbose_name="Пользователь")
     flower = models.ForeignKey(Flower, on_delete=models.CASCADE, verbose_name="Цветок")
