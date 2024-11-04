@@ -52,7 +52,10 @@ def checkout(request):
                 user=request.user,
                 flower=flower,
                 quantity=item['quantity'],
-                price=item['price']
+                price=item['price'],
+                address = request.user.profile.address,
+                email = request.user.email,
+                phone = request.user.profile.phone
             )
         # Очищаем корзину после оформления заказа
         request.session['cart'] = {}
