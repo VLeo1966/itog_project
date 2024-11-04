@@ -1,3 +1,4 @@
+<!-- catalog/layout.html -->
 {% load static %}
 <! doctype html>
 <html lang="en">
@@ -16,7 +17,12 @@
             <!-- Боковое меню -->
             <aside class="col-md-3 p-4 bg-light border-end" style="position: sticky; top: 0; height: 100vh;">
                 <img src="{% static 'catalog/img/flower_delivery.jpeg' %}" alt="Доставка цветов" class="img-fluid mb-3" width="150">
-                <h5 class="mb-3">Доставка цветов</h5>
+                <h5 class="mb-3">Доставка цветов:</h5>
+                <!-- Время работы -->
+                <p><strong>Время работы:</strong> 9:00 - 18:00</p>
+
+                <!-- Служба доставки Email -->
+                <p><strong>Email:</strong> <a href="mailto:delivery@example.com">delivery@example.com</a></p>
 
                 <hr>
                 <br>
