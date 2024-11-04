@@ -14,3 +14,4 @@ class Flower(models.Model):
     class Meta:
         verbose_name = 'Цветок'
         verbose_name_plural = 'Цветы'
+

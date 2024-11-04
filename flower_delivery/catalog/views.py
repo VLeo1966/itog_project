@@ -1,7 +1,8 @@
 # catalog/views.py
 from django.shortcuts import render, redirect
 from .models import Flower
-from django.shortcuts import render
+from django.contrib.auth.decorators import login_required
+from orders.models import Order
 
 
 def flower_list(request):
@@ -41,9 +42,25 @@ def clear_cart(request):
     return redirect('flower_list')
 
 
+@login_required
 def checkout(request):
     cart = request.session.get('cart', {})
-    for item_id, item in cart.items():
-        item['total_price_per_item'] = item['price'] * item['quantity']
-    total_price = sum(item['total_price_per_item'] for item in cart.values())
+    if request.method == 'POST':
+        for item_id, item in cart.items():
+            flower = Flower.objects.get(id=item_id)
+            Order.objects.create(
+                user=request.user,
+                flower=flower,
+                quantity=item['quantity'],
+                price=item['price']
+            )
+        # Очищаем корзину после оформления заказа
+        request.session['cart'] = {}
+        return redirect('order_success')  # Перенаправляем на страницу подтверждения заказа
+
+    total_price = sum(item['price'] * item['quantity'] for item in cart.values())
     return render(request, 'catalog/checkout.html', {'cart': cart, 'total_price': total_price})
+
+
+def order_success(request):
+    return render(request, 'catalog/order_success.html')
