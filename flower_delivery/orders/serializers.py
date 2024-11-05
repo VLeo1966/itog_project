@@ -1,6 +1,6 @@
 # orders/serializers.py
 from rest_framework import serializers
-from flower_delivery.catalog.models import Order
+from catalog.models import Order
 
 class OrderSerializer(serializers.ModelSerializer):
     class Meta:
