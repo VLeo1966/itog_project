@@ -45,9 +45,9 @@ def create_order_in_db(flower, quantity):
         flower=flower,
         quantity=quantity,
         price=flower.price,
-        address="ул. Пример, д. 1",  # Примерный адрес
+        phone="+123456789",  # Примерный телефон
         email="example@mail.com",  # Примерный email
-        phone="+123456789"  # Примерный телефон
+        address="ул. Пример, д. 1",  # Примерный адрес
     )
 
 # Асинхронная обертка для получения цветка по id
@@ -109,6 +109,8 @@ async def create_order(message: Message):
         await message.reply(f"Ошибка при создании заказа: {str(e)}")
     except Exception as e:
         await message.reply(f"Произошла ошибка: {str(e)}")
+
+
 async def main():
     await dp.start_polling(bot)
 
