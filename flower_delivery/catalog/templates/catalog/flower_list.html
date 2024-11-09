@@ -11,14 +11,15 @@
             <h1>Наша Цветочная Коллекция</h1>
             <div>
                 {% for flower in flowers %}
-                    <div style="border: 1px solid #ccc; margin: 10px; padding: 10px;">
+                    <div id="flower-{{ flower.id }}" style="border: 1px solid #ccc; margin: 10px; padding: 10px;">
                         {% if flower.image %}
                             <img src="{{ flower.image.url }}" alt="{{ flower.name }}" style="width: 300px; height: auto;">
                         {% endif %}
                         <h2>{{ flower.name }}</h2>
                         <p>{{ flower.description }}</p>
                         <p><strong>Цена:</strong> {{ flower.price }} руб</p>
-                        <a href="{% url 'add_to_cart' flower.id %}" class="btn btn-primary">Добавить в корзину</a>
+                        <!-- Добавление якоря с использованием ID цветка -->
+                        <a href="{% url 'add_to_cart' flower.id %}#flower-{{ flower.id }}" class="btn btn-primary">Добавить в корзину</a>
                     </div>
                 {% empty %}
                     <p>На данный момент в наличии нет цветов.</p>

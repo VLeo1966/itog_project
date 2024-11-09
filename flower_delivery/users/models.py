@@ -10,7 +10,7 @@ class Profile(models.Model):
     address = models.CharField(max_length=255, blank=True, null=True, verbose_name="Адрес доставки")
     phone = models.CharField(max_length=15, blank=True, null=True, verbose_name="Номер телефона")
     email = models.EmailField(max_length=255, blank=True, null=True,  verbose_name="Адрес электронной почты")
-
+    telegram_id = models.CharField(max_length=50, blank=True, null=True, verbose_name="Telegram ID")  # Новое поле
     def __str__(self):
         return f"{self.user.username} Profile"
     class Meta:
