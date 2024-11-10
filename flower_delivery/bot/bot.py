@@ -120,7 +120,7 @@ def create_order_in_db(user, flower, quantity, address, email, phone):
 async def login_user(message: Message):
     try:
         _, username, password  = message.text.split(maxsplit=2)
-        telegram_id = message.from_user.id
+        telegram_id = message.from_user.id  # это уникальный идентификатор пользователя в Telegram
         user = await link_telegram_id_to_user(telegram_id, username)
 
         if user:
