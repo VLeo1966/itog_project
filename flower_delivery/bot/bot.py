@@ -9,6 +9,7 @@ from asgiref.sync import sync_to_async
 from django.utils import timezone
 from datetime import datetime
 from decimal import Decimal
+from django.db import IntegrityError
 
 # Настройка Django для взаимодействия с базой данных
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -71,48 +72,6 @@ async def show_catalog(message: Message):
         await message.reply(f"Ошибка при загрузке каталога: {str(e)}")
 
 
-# Команда для создания заказа
-@dp.message(Command("order"))
-async def create_order(message: Message):
-    telegram_id = message.from_user.id
-    user = await get_user_by_telegram_id(telegram_id)
-
-    if user:
-        try:
-            _, flower_id, quantity = message.text.split()
-            flower_id = int(flower_id)
-            quantity = int(quantity)
-
-            # Получаем информацию о цветке
-            flower = await sync_to_async(Flower.objects.get)(id=flower_id)
-
-            # Проверяем, что у цветка есть цена
-            if flower.price is None:
-                await message.reply("Ошибка: у выбранного цветка нет установленной цены.")
-                return
-
-            # Получаем данные из профиля пользователя
-            address = user.profile.address
-            email = user.profile.email
-            phone = user.profile.phone
-
-            # Создаём заказ
-            order = await create_order_in_db(user, flower, quantity, address, email, phone)
-
-            # Отправляем подтверждение
-            total_price = flower.price * quantity
-            await message.reply(f"Заказ успешно создан!\n"
-                                f"Цветок: {flower.name}\n"
-                                f"Количество: {quantity}\n"
-                                f"Сумма: {total_price} руб.\n"
-                                f"Дата заказа: {order.order_date}")
-        except (ValueError, Flower.DoesNotExist):
-            await message.reply("Ошибка: некорректные данные или цветок не найден.")
-        except Exception as e:
-            await message.reply(f"Произошла ошибка: {str(e)}")
-    else:
-        await message.reply("Вы не авторизованы. Пожалуйста, используйте /login для авторизации.")
-
 
 # Асинхронная функция для привязки Telegram ID к пользователю
 @sync_to_async
@@ -130,7 +89,13 @@ def link_telegram_id_to_user(telegram_id, username):
 @sync_to_async
 def get_user_by_telegram_id(telegram_id):
     try:
-        return Profile.objects.get(telegram_id=telegram_id).user
+        profiles = Profile.objects.filter(telegram_id=telegram_id)
+        if profiles.exists():
+            # Предупреждаем о возможных дубликатах, используя первый профиль
+            if profiles.count() > 1:
+                print(f"Warning: Multiple profiles found for telegram_id {telegram_id}. Using the first one.")
+            return profiles.first().user
+        return None
     except Profile.DoesNotExist:
         return None
 
@@ -154,15 +119,74 @@ def create_order_in_db(user, flower, quantity, address, email, phone):
 @dp.message(Command("login"))
 async def login_user(message: Message):
     try:
-        _, username = message.text.split(maxsplit=1)
+        _, username, password  = message.text.split(maxsplit=2)
         telegram_id = message.from_user.id
         user = await link_telegram_id_to_user(telegram_id, username)
+
         if user:
             await message.reply(f"Вы успешно вошли как {user.username}.")
         else:
-            await message.reply("Пользователь не найден. Проверьте имя пользователя.")
+            await message.reply(
+                "Пользователь не найден. Если у вас нет аккаунта, пожалуйста, зарегистрируйтесь на сайте: https://ваш_сайт.ru/registration")
     except ValueError:
-        await message.reply("Пожалуйста, введите команду в формате /login <имя_пользователя>.")
+        await message.reply("Пожалуйста, введите команду в формате /login <имя_пользователя> <пароль>.")
+
+
+
+# Команда для создания заказа
+@dp.message(Command("order"))
+async def create_order(message: Message):
+    telegram_id = message.from_user.id
+    user = await get_user_by_telegram_id(telegram_id)
+
+    if user:
+        try:
+            # Разделяем команду на части
+            parts = message.text.split()
+
+            if len(parts) != 3:
+                raise ValueError("Неверный формат. Используйте команду в формате /order <ID цветка> <количество>")
+
+            _, flower_id, quantity = parts
+            flower_id = int(flower_id)
+            quantity = int(quantity)
+
+            # Получаем информацию о цветке
+            flower = await sync_to_async(Flower.objects.get)(id=flower_id)
+
+            # Проверяем, что у цветка есть цена
+            if flower.price is None or not isinstance(flower.price, (int, float, Decimal)):
+                await message.reply("Ошибка: у выбранного цветка нет установленной цены.")
+                return
+
+            # Получаем данные из профиля пользователя
+            address = user.profile.address
+            email = user.profile.email
+            phone = user.profile.phone
+
+            # Создаём заказ
+            order = await create_order_in_db(user, flower, quantity, address, email, phone)
+
+            # Отправляем подтверждение
+            total_price = flower.price * quantity
+            await message.reply(f"Заказ успешно создан!\n"
+                                f"Цветок: {flower.name}\n"
+                                f"Количество: {quantity}\n"
+                                f"Сумма: {total_price} руб.\n"
+                                f"Дата заказа: {order.order_date}")
+        except ValueError as ve:
+            # Обработка ошибок при неверном формате данных
+            await message.reply(f"Ошибка: {str(ve)}")
+        except Flower.DoesNotExist:
+            # Если цветок с таким ID не найден
+            await message.reply("Ошибка: цветок с таким ID не найден.")
+        except Exception as e:
+            # Обработка других ошибок
+            await message.reply(f"Произошла ошибка: {str(e)}")
+    else:
+        await message.reply("Вы не авторизованы. Пожалуйста, используйте /login для авторизации.")
+
+
 
 async def main():
     await dp.start_polling(bot)
