@@ -10,6 +10,11 @@ from django.utils import timezone
 from datetime import datetime
 from decimal import Decimal
 from django.db import IntegrityError
+from aiogram.types import InputFile
+import os
+from pathlib import Path
+from aiogram.types import FSInputFile
+from django.conf import settings
 
 # Настройка Django для взаимодействия с базой данных
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -55,21 +60,51 @@ async def send_welcome(message: Message):
     await message.reply("Добро пожаловать в FlowerDelivery! Используйте /catalog для просмотра каталога цветов.")
 
 
-# Команда для просмотра каталога
+
+# Команда для просмотра каталога с изображениями
+
+
+# Команда для просмотра каталога с изображениями
 @dp.message(Command("catalog"))
 async def show_catalog(message: Message):
     try:
+        # Проверяем, есть ли цветы в каталоге
         if await check_flowers_exist():
             flowers = await get_all_flowers()
-            catalog_text = "Каталог цветов:\n\n"
             for flower in flowers:
-                catalog_text += f"{flower.id}. {flower.name} - {flower.price} руб.\n"
-            catalog_text += "\nВведите /order <ID цветка> <количество> для заказа."
-            await message.reply(catalog_text)
+                # Генерация пути к изображению
+                image_path = Path(settings.MEDIA_ROOT) / flower.image.name if flower.image else None
+
+                # Ограничиваем описание до 500 символов, чтобы сохранить место для других полей
+                description = flower.description[:500] + '...' if len(flower.description) > 500 else flower.description
+
+                # Подготовка подписи, добавляя ID перед названием
+                caption = f"ID цветка: {flower.id}\n{flower.name}\nОписание: {description}\nЦена: {flower.price} руб."
+                if len(caption) > 1024:
+                    caption = caption[:1021] + "..."  # Обрезаем до 1024 символов
+
+                # Проверяем, есть ли изображение для цветка
+                if image_path and image_path.exists():
+                    # Используем FSInputFile для отправки изображения
+                    photo = FSInputFile(image_path)
+                    await bot.send_photo(
+                        chat_id=message.chat.id,
+                        photo=photo,
+                        caption=caption
+                    )
+                else:
+                    # Если изображения нет, отправляем только текстовую информацию
+                    await message.reply(
+                        f"ID: {flower.id}\n{flower.name}\nОписание: {description}\nЦена: {flower.price} руб.\n(Изображение отсутствует)"
+                    )
+            # Инструкция для заказа
+            await message.reply("Введите /login <имя_пользователя> <пароль> для авторизации в системе \nВведите /order <ID цветка> <количество> для оформления заказа.")
         else:
             await message.reply("Каталог пуст.")
     except Exception as e:
         await message.reply(f"Ошибка при загрузке каталога: {str(e)}")
+
+
 
 
 
@@ -186,6 +221,66 @@ async def create_order(message: Message):
     else:
         await message.reply("Вы не авторизованы. Пожалуйста, используйте /login для авторизации.")
 
+
+# Команда /help
+@dp.message(Command("help"))
+async def send_help(message: Message):
+    help_text = (
+        "📚 Доступные команды:\n\n"
+        "/start - Начать работу с ботом\n"
+        "/help - Показать список команд\n"
+        "/login <имя_пользователя> <пароль> - Авторизоваться в системе\n"
+        "/catalog - Просмотр каталога цветов\n"
+        "/order <ID цветка> <количество> - Создать заказ на выбранный цветок\n"
+        "/profile - Просмотр информации профиля\n"
+        "/logout - Выйти из системы\n"
+    )
+    await message.reply(help_text)
+
+
+# Команда /profile
+@dp.message(Command("profile"))
+async def view_profile(message: Message):
+    telegram_id = message.from_user.id
+    user = await get_user_by_telegram_id(telegram_id)
+
+    if user:
+        profile = user.profile
+        profile_info = (
+            f"👤 Профиль:\n\n"
+            f"Имя пользователя: {user.username}\n"
+            f"Адрес: {profile.address or 'не указан'}\n"
+            f"Телефон: {profile.phone or 'не указан'}\n"
+            f"Email: {profile.email or 'не указан'}\n"
+            f"Дата регистрации: {user.date_joined.strftime('%Y-%m-%d')}\n"
+        )
+        await message.reply(profile_info)
+    else:
+        await message.reply("Вы не авторизованы. Пожалуйста, используйте /login для входа в систему.")
+
+
+# Команда /logout
+@dp.message(Command("logout"))
+async def logout_user(message: Message):
+    telegram_id = message.from_user.id
+    user = await get_user_by_telegram_id(telegram_id)
+
+    if user:
+        # Убираем telegram_id из профиля для деавторизации
+        await remove_telegram_id_from_profile(telegram_id)
+        await message.reply("Вы успешно вышли из системы. Чтобы войти снова, используйте команду /login.")
+    else:
+        await message.reply("Вы не авторизованы. Пожалуйста, сначала выполните вход с помощью команды /login.")
+
+# Асинхронная функция для удаления telegram_id из профиля
+@sync_to_async
+def remove_telegram_id_from_profile(telegram_id):
+    try:
+        profile = Profile.objects.get(telegram_id=telegram_id)
+        profile.telegram_id = None
+        profile.save()
+    except Profile.DoesNotExist:
+        pass
 
 
 async def main():

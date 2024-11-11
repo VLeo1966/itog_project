@@ -11,8 +11,6 @@ class Order(models.Model):
     price = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Цена за единицу")
     total_price = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Общая цена", null=True)
     order_date = models.DateTimeField(default=timezone.now, verbose_name="Дата заказа")  # Default value set to timezone.now
-
-    # Новые поля профиля
     address = models.CharField(max_length=255, verbose_name="Адрес доставки", null=True)
     email = models.EmailField(verbose_name="Email", null=True)
     phone = models.CharField(max_length=15, verbose_name="Телефон", null=True)
