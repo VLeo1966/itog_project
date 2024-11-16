@@ -1,7 +1,7 @@
 # catalog/views.py
+from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
 from .models import Flower
-from django.contrib.auth.decorators import login_required
 from orders.models import Order
 
 
@@ -12,7 +12,8 @@ def flower_list(request):
     # Подсчет общей суммы корзины
     total_price = sum(item['price'] * item['quantity'] for item in cart.values())
 
-    return render(request, 'catalog/flower_list.html', {'flowers': flowers, 'cart': cart, 'total_price': total_price})
+    return render(request, 'catalog/flower_list.html', {'flowers': flowers, 'cart': cart,
+                                                        'total_price': total_price})
 
 
 def add_to_cart(request, flower_id):

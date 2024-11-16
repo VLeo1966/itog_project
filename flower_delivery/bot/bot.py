@@ -1,19 +1,19 @@
 import os
 import sys
-import django
-import asyncio
-from aiogram import Bot, Dispatcher
-from aiogram.types import Message
-from aiogram.filters import Command
-from asgiref.sync import sync_to_async
-from django.utils import timezone
+
+
 from datetime import datetime
 from decimal import Decimal
-from django.db import IntegrityError
-from aiogram.types import InputFile
-import os
 from pathlib import Path
-from aiogram.types import FSInputFile
+
+import asyncio
+
+import django
+from asgiref.sync import sync_to_async
+from aiogram import Bot, Dispatcher
+from aiogram.filters import Command
+from aiogram.types import Message, FSInputFile
+
 from django.conf import settings
 
 # Настройка Django для взаимодействия с базой данных
@@ -21,10 +21,12 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'flower_delivery.settings')
 django.setup()  # Инициализация Django, должна быть до импорта моделей
 
+from django.contrib.auth.models import User
+
 from catalog.models import Flower
 from orders.models import Order
 from users.models import Profile
-from django.contrib.auth.models import User
+
 
 API_TOKEN = '7843222297:AAGIsnQ6v247JoCJUcUOfiNl_aCAf30fFho'
 bot = Bot(token=API_TOKEN)
