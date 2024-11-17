@@ -11,6 +11,11 @@ class Profile(models.Model):
     phone = models.CharField(max_length=15, blank=True, null=True, verbose_name="Номер телефона")
     email = models.EmailField(max_length=255, blank=True, null=True,  verbose_name="Адрес электронной почты")
     telegram_id = models.BigIntegerField(unique=True, blank=True, null=True, verbose_name="Telegram ID")  # Новое поле
+
+    class Meta:
+        verbose_name = 'Профиль'
+        verbose_name_plural = 'Профили'
+
     def __str__(self):
         return f"{self.user.username} Profile"
 
@@ -20,10 +25,6 @@ class Profile(models.Model):
             if Profile.objects.filter(telegram_id=self.telegram_id).exclude(id=self.id).exists():
                 raise IntegrityError(f"Этот Telegram ID уже привязан к другому профилю.")
         super().save(*args, **kwargs)
-
-    class Meta:
-        verbose_name = 'Профиль'
-        verbose_name_plural = 'Профили'
 
 
 @receiver(post_save, sender=User)

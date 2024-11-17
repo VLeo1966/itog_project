@@ -23,5 +23,5 @@ def register(request):
         form = CustomUserCreationForm()  # Используем кастомную форму при GET-запросе
     return render(request, 'users/register.html', {'form': form})
 
-
+                                                                                                                       
 

@@ -14,13 +14,16 @@ class Order(models.Model):
     address = models.CharField(max_length=255, verbose_name="Адрес доставки", null=True)
     email = models.EmailField(verbose_name="Email", null=True)
     phone = models.CharField(max_length=15, verbose_name="Телефон", null=True)
-    def save(self, *args, **kwargs):
-        self.total_price = self.quantity * self.price  # Calculate total price before saving
-        super().save(*args, **kwargs)
 
     class Meta:
         verbose_name = 'Заказ'
         verbose_name_plural = 'Заказы'
+
+    def save(self, *args, **kwargs):
+        self.total_price = self.quantity * self.price  # Calculate total price before saving
+        super().save(*args, **kwargs)
+
+
 
 
 
